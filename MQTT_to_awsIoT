@@ -1,0 +1,58 @@
+import time
+import serial
+from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient #remember to pip install AWSIoTPythonSDK pyserial
+
+# AWS IoT endpoint and port
+iot_endpoint = "your-iot-endpoint.iot.your-region.amazonaws.com"
+iot_port = 8883
+
+# AWS IoT Thing settings
+thing_name = "your-thing-name"
+root_ca_path = "path/to/root/ca.pem"
+private_key_path = "path/to/private/key.pem.key"
+cert_path = "path/to/cert.pem.crt"
+
+# Serial port for GPS module (replace with your GPS module's serial port)
+gps_serial_port = "/dev/ttyUSB0"
+
+def read_gps_data():
+    # Simulated function to read GPS data (replace with actual code for your GPS module)
+    # For this example, we assume the GPS module sends data in NMEA format
+    with serial.Serial(gps_serial_port, 9600, timeout=1) as ser:
+        line = ser.readline().decode('utf-8')
+        if line.startswith('$GPGGA'):
+            # Extract latitude and longitude from GPGGA sentence
+            data = line.split(',')
+            latitude = float(data[2]) if data[2] else 0.0
+            longitude = float(data[4]) if data[4] else 0.0
+            return latitude, longitude
+    return None, None
+
+# Create an AWS IoT MQTT Client
+mqtt_client = AWSIoTMQTTClient(thing_name)
+mqtt_client.configureEndpoint(iot_endpoint, iot_port)
+mqtt_client.configureCredentials(root_ca_path, private_key_path, cert_path)
+
+# Connect to AWS IoT
+mqtt_client.connect()
+
+try:
+    while True:
+        # Read GPS data
+        latitude, longitude = read_gps_data()
+
+        if latitude is not None and longitude is not None:
+            # Format GPS data as a JSON message
+            message = '{{"latitude": {}, "longitude": {}}}'.format(latitude, longitude)
+
+            # Publish the message to AWS IoT topic
+            topic = "your/gps/topic"
+            mqtt_client.publish(topic, message, 1)
+
+            print(f"Published GPS data: {message}")
+
+        time.sleep(5)  # Adjust the delay based on your desired frequency
+
+except KeyboardInterrupt:
+    print("Disconnecting...")
+    mqtt_client.disconnect()
