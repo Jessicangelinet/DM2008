@@ -8,6 +8,8 @@ Use python script to read Lat Long Values from Arduino
 Implement logic of distance calculation relative from initiation point
 Implement MQTT protocol in python to send to AWS IoT
 
+**Teacher mentioned using JSON as data format to be sent to AWS IoT => more scalable
+
 `Teacher suggestion:`
 -python script can SEND to AWS IoT the pet's current location
 -AWS IoT can also ASK python what is the current location of the pet
