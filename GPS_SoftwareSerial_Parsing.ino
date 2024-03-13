@@ -60,6 +60,8 @@ void setup()
 }
 
 uint32_t timer = millis();
+
+
 void loop()                     // run over and over again
 {
   char c = GPS.read();
