@@ -26,10 +26,23 @@ def read_gps_data():
                     location = line.split()
                     latitude = location[1].rstrip(",N")
                     longitude = location[2].rstrip("E")
+                    print("Current Position: ")
                     print("Latitude: ", latitude)
                     print("Longitude: ", longitude)
 
-                    return latitude, longitude
+                # with serial.Serial(gps_serial_port, 115200, timeout=1) as ser:
+                #     line = ser.readline().decode('utf-8')
+                #     print(line)
+                #     if line.startswith('$GPGGA') or line.startswith('$GPRMC'):
+                #         # Extract latitude and longitude from GPGGA sentence
+                #         data = line.split(',')
+                #         latitude = float(data[2]) if data[2] else 0.0
+                #         longitude = float(data[4]) if data[4] else 0.0
+                        # print(data)
+                        #return latitude, longitude
+                # return None, None
+
+                    #return latitude, longitude
                                 
         except KeyboardInterrupt:
             ser.close() # Close the serial connection when the script is interrupted
@@ -37,17 +50,42 @@ def read_gps_data():
 lat, long = read_gps_data()
 print(lat, long)
 
-    # with serial.Serial(gps_serial_port, 115200, timeout=1) as ser:
-    #     line = ser.readline().decode('utf-8')
-    #     print(line)
-    #     if line.startswith('$GPGGA') or line.startswith('$GPRMC'):
-    #         # Extract latitude and longitude from GPGGA sentence
-    #         data = line.split(',')
-    #         latitude = float(data[2]) if data[2] else 0.0
-    #         longitude = float(data[4]) if data[4] else 0.0
-            # print(data)
-            #return latitude, longitude
-    # return None, None
+
+
+'''check within circle'''
+import math
+
+def haversine(lat1, lon1, lat2, lon2):
+    """
+    Calculate the great-circle distance (in meters) between two points
+    on the Earth's surface using the Haversine formula.
+    """
+    R = 6371000  # Earth radius in meters
+    dlat = math.radians(lat2 - lat1)
+    dlon = math.radians(lon2 - lon1)
+    a = math.sin(dlat / 2) ** 2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon / 2) ** 2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    distance = R * c
+    return distance
+
+def is_within_circle(lat_input, lon_input, lat_center, lon_center, radius_meters):
+    """
+    Check if the input latitude and longitude are within the specified circle.
+    """
+    distance_to_center = haversine(lat_input, lon_input, lat_center, lon_center)
+    return distance_to_center <= radius_meters
+
+# Example usage:
+reference_latitude = 1.3521  # Example latitude of the center point
+reference_longitude = 103.8198  # Example longitude of the center point
+circle_radius_meters = 1  # Example radius in meters
+
+if is_within_circle(lat, long, reference_latitude, reference_longitude, circle_radius_meters):
+    print(f"The input coordinates are within the {circle_radius_meters} meter circle.")
+else:
+    print(f"😡😡😡The input coordinates are outside the {circle_radius_meters} meter circle.")
+
+
 
 # Create an AWS IoT MQTT Client
 # mqtt_client = AWSIoTMQTTClient(thing_name)
@@ -103,35 +141,3 @@ print(lat, long)
 #     mqtt_client.disconnect()
 
 
-'''check within circle'''
-import math
-
-def haversine(lat1, lon1, lat2, lon2):
-    """
-    Calculate the great-circle distance (in meters) between two points
-    on the Earth's surface using the Haversine formula.
-    """
-    R = 6371000  # Earth radius in meters
-    dlat = math.radians(lat2 - lat1)
-    dlon = math.radians(lon2 - lon1)
-    a = math.sin(dlat / 2) ** 2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon / 2) ** 2
-    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-    distance = R * c
-    return distance
-
-def is_within_circle(lat_input, lon_input, lat_center, lon_center, radius_meters):
-    """
-    Check if the input latitude and longitude are within the specified circle.
-    """
-    distance_to_center = haversine(lat_input, lon_input, lat_center, lon_center)
-    return distance_to_center <= radius_meters
-
-# Example usage:
-reference_latitude = 1.3521  # Example latitude of the center point
-reference_longitude = 103.8198  # Example longitude of the center point
-circle_radius_meters = 1  # Example radius in meters
-
-if is_within_circle(lat, long, reference_latitude, reference_longitude, circle_radius_meters):
-    print(f"The input coordinates are within the {circle_radius_meters} meter circle.")
-else:
-    print(f"😡😡😡The input coordinates are outside the {circle_radius_meters} meter circle.")
