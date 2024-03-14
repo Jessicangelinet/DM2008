@@ -39,7 +39,7 @@ else:
 """phind"""
 from math import radians, cos, sin, asin, sqrt
 
-def haversine(lon1, lat1, lon2, lat2):
+def haversine1(lon1, lat1, lon2, lat2):
     """
     Calculate the great circle distance between two points 
     on the earth (specified in decimal degrees)
