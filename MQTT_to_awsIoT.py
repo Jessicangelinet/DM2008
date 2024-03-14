@@ -17,7 +17,7 @@ baud_rate = 115200
 
 def read_gps_data():
 
-    with serial.Serial(gps_serial_port, 115200, timeout=1) as ser:
+    with serial.Serial(gps_serial_port, 115200, timeout=0.5) as ser:
         try:
             while True:
                 line = ser.readline().decode('latin-1').strip()
@@ -29,26 +29,30 @@ def read_gps_data():
                     print("Current Position: ")
                     print("Latitude: ", latitude)
                     print("Longitude: ", longitude)
-
-                # with serial.Serial(gps_serial_port, 115200, timeout=1) as ser:
-                #     line = ser.readline().decode('utf-8')
-                #     print(line)
-                #     if line.startswith('$GPGGA') or line.startswith('$GPRMC'):
-                #         # Extract latitude and longitude from GPGGA sentence
-                #         data = line.split(',')
-                #         latitude = float(data[2]) if data[2] else 0.0
-                #         longitude = float(data[4]) if data[4] else 0.0
-                        # print(data)
-                        #return latitude, longitude
-                # return None, None
-
-                    #return latitude, longitude
-                                
         except KeyboardInterrupt:
             ser.close() # Close the serial connection when the script is interrupted
 
-lat, long = read_gps_data()
-print(lat, long)
+
+    # Alternative way around 
+    # ser = serial.Serial(gps_serial_port, 115200)
+    # try:
+    #     while True:
+    #         line = ser.readline().decode('latin-1').strip()
+    #         if line.startswith('$GPGGA'): # Extract latitude and longitude from GPGGA sentence
+    #             if len(line.split(",")) < 10:
+    #                 continue
+    #             data = line.split(',')
+    #             latitude = float(data[2]) if data[2] else 0.0
+    #             longitude = float(data[4]) if data[4] else 0.0
+
+    #         elif line.startswith('$GPRMC'): # Extract latitude and longitude from GPRMC sentence
+    #             data = line.split(',')
+    #             latitude = float(data[3]) if data[5] else 0.0
+    #             longitude = float(data[3]) if data[5] else 0.0  
+    #         else:
+    #             continue
+
+read_gps_data()
 
 
 

@@ -80,8 +80,8 @@ void loop()                     // run over and over again
       return;  // we can fail to parse a sentence in which case we should just wait for another
   }
 
-  // approximately every 2 seconds or so, print out the current stats
-  if (millis() - timer > 2000) {
+  // approximately every 0.5 second or so, print out the current stats
+  if (millis() - timer > 0.5) {
     timer = millis(); // reset the timer
 
     Serial.print("\nTime: ");

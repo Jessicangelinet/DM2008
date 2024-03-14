@@ -24,5 +24,4 @@ Implement MQTT protocol in python to send to AWS IoT
 GPS connected to Laptop => Obtain position => Good enough
 Publish location into IOT => Good enough 
 
-
-
+  
