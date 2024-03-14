@@ -1,6 +1,17 @@
 import time
 import serial
 import math
+# from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient #remember to pip install AWSIoTPythonSDK pyserial
+
+# AWS IoT endpoint and port
+iot_endpoint = "your-iot-endpoint.iot.your-region.amazonaws.com"
+iot_port = 8883
+
+# AWS IoT Thing settings
+thing_name = "your-thing-name"
+root_ca_path = "path/to/root/ca.pem"
+private_key_path = "path/to/private/key.pem.key"
+cert_path = "path/to/cert.pem.crt"
 
 gps_serial_port = 'COM5'
 baud_rate = 115200
@@ -42,8 +53,11 @@ def read_gps_data():
     #         else:
     #             continue
 
-'''check within circle'''
+read_gps_data()
 
+
+
+'''check within circle'''
 def haversine(lat1, lon1, lat2, lon2):
     """
     Calculate the great-circle distance (in meters) between two points
@@ -64,6 +78,78 @@ def is_within_circle(lat_input, lon_input, lat_center, lon_center, radius_meters
     distance_to_center = haversine(lat_input, lon_input, lat_center, lon_center)
     return distance_to_center <= radius_meters
 
+center_lat = 0
+center_long = 0
+while True:
+    lat, long = read_gps_data()
+    print(lat, long)
 
+    if center_lat == 0 and center_long == 0:
+        center_check = input("Are you at your center point?")
+        if center_check == "yes":
+            center_lat = lat
+            center_long = long
+            print("Center point set")
+            circle_radius_meters = int(input("Enter the radius of your circle area in meters: "))
+
+    if is_within_circle(lat, long, center_lat, center_long, circle_radius_meters):
+        print(f"The input coordinates are within the {circle_radius_meters} meter circle.")
+    else:
+        print(f"😡😡😡The input coordinates are outside the {circle_radius_meters} meter circle.")
+
+
+
+# Create an AWS IoT MQTT Client
+# mqtt_client = AWSIoTMQTTClient(thing_name)
+# mqtt_client.configureEndpoint(iot_endpoint, iot_port)
+# mqtt_client.configureCredentials(root_ca_path, private_key_path, cert_path)
+
+# # Connect to AWS IoT
+# mqtt_client.connect()
+
+# #Sending to AWS using JSON format
+# try:
+#     while True:
+#         # Read GPS data
+#         latitude, longitude = read_gps_data()
+
+#         if latitude is not None and longitude is not None:
+#             # Create a JSON payload with GPS data
+#             payload = {
+#                 "latitude": latitude,
+#                 "longitude": longitude
+#             }
+            
+#             # Convert payload to JSON format
+#             json_payload = json.dumps(payload)
+
+#             # Publish the JSON payload to AWS IoT topic
+#             topic = "your/gps/topic"
+#             mqtt_client.publish(topic, json_payload, 1)
+
+#             print(f"Published GPS data: {json_payload}")
+
+#         time.sleep(5)  # Adjust the delay based on your desired frequency
+
+# # try:
+# #     while True:
+# #         # Read GPS data
+# #         latitude, longitude = read_gps_data()
+
+# #         if latitude is not None and longitude is not None:
+# #             # Format GPS data as a JSON message
+# #             message = '{{"latitude": {}, "longitude": {}}}'.format(latitude, longitude)
+
+# #             # Publish the message to AWS IoT topic
+# #             topic = "your/gps/topic"
+# #             mqtt_client.publish(topic, message, 1)
+
+# #             print(f"Published GPS data: {message}")
+
+# #         time.sleep(5)  # Adjust the delay based on your desired frequency
+
+# except KeyboardInterrupt:
+#     print("Disconnecting...")
+#     mqtt_client.disconnect()
 
 
