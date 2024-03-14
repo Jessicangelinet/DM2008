@@ -1,5 +1,6 @@
 import time
 import serial
+import math
 # from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient #remember to pip install AWSIoTPythonSDK pyserial
 
 # AWS IoT endpoint and port
@@ -57,8 +58,6 @@ read_gps_data()
 
 
 '''check within circle'''
-import math
-
 def haversine(lat1, lon1, lat2, lon2):
     """
     Calculate the great-circle distance (in meters) between two points
@@ -79,15 +78,24 @@ def is_within_circle(lat_input, lon_input, lat_center, lon_center, radius_meters
     distance_to_center = haversine(lat_input, lon_input, lat_center, lon_center)
     return distance_to_center <= radius_meters
 
-# Example usage:
-reference_latitude = 1.3521  # Example latitude of the center point
-reference_longitude = 103.8198  # Example longitude of the center point
-circle_radius_meters = 1  # Example radius in meters
+center_lat = 0
+center_long = 0
+while True:
+    lat, long = read_gps_data()
+    print(lat, long)
 
-if is_within_circle(lat, long, reference_latitude, reference_longitude, circle_radius_meters):
-    print(f"The input coordinates are within the {circle_radius_meters} meter circle.")
-else:
-    print(f"😡😡😡The input coordinates are outside the {circle_radius_meters} meter circle.")
+    if center_lat == 0 and center_long == 0:
+        center_check = input("Are you at your center point?")
+        if center_check == "yes":
+            center_lat = lat
+            center_long = long
+            print("Center point set")
+            circle_radius_meters = int(input("Enter the radius of your circle area in meters: "))
+
+    if is_within_circle(lat, long, center_lat, center_long, circle_radius_meters):
+        print(f"The input coordinates are within the {circle_radius_meters} meter circle.")
+    else:
+        print(f"😡😡😡The input coordinates are outside the {circle_radius_meters} meter circle.")
 
 
 
