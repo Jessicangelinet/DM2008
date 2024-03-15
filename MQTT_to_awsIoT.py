@@ -1,6 +1,7 @@
 import time
 import serial
 import math
+from Adafruit_IO import Client
 
 gps_serial_port = 'COM5'
 baud_rate = 115200
@@ -64,6 +65,25 @@ def is_within_circle(lat_input, lon_input, lat_center, lon_center, radius_meters
     distance_to_center = haversine(lat_input, lon_input, lat_center, lon_center)
     return distance_to_center <= radius_meters
 
+def sendData(user, key, feed, data):
+    client = Client(user, key)
+    dash = client.feeds(feed)
+    client.send_data(dash.key, data)
+    print("Message sent")
 
+def receiveData(user, key, feed):
+    client = Client(user, key)
+    data = client.receive(feed)
+    return data.value
+
+def updateMap(user, key, feed, lat, lon):
+    client = Client(user, key)
+    dash = client.feeds(feed)
+    data = {'lat': lat,
+            'lon': lon,
+            'ele': None,
+            'created_at': None}
+    client.send_data(dash.key, 0, data)
+    print("Map updated")
 
 
