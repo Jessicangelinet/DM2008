@@ -10,16 +10,31 @@ def read_gps_data():
 
     with serial.Serial(gps_serial_port, 115200, timeout=0.5) as ser:
         try:
+            center_lat = 0
+            center_long = 0
             while True:
                 line = ser.readline().decode('latin-1').strip()
                 if line.startswith("Location:"):
                     #Extract latitude and longitude
                     location = line.split()
-                    latitude = location[1].rstrip(",N")
-                    longitude = location[2].rstrip("E")
+                    latitude = float(location[1].rstrip(",N"))
+                    longitude = float(location[2].rstrip("E"))
                     print("Current Position: ")
                     print("Latitude: ", latitude)
                     print("Longitude: ", longitude)
+
+                    if center_lat == 0 and center_long == 0:
+                        center_check = input("Are you at your center point?")
+                        if center_check == "yes":
+                            center_lat = latitude
+                            center_long = longitude
+                            print("Center point set")
+                            circle_radius_meters = int(input("Enter the radius of your circle area in meters: "))
+
+                    if is_within_circle(lat, long, center_lat, center_long, circle_radius_meters):
+                        print(f"The input coordinates are within the {circle_radius_meters} meter circle.")
+                    else:
+                        print(f"😡😡😡The input coordinates are outside the {circle_radius_meters} meter circle.")
         except KeyboardInterrupt:
             ser.close() # Close the serial connection when the script is interrupted
 
