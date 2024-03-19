@@ -5,6 +5,14 @@ from Adafruit_IO import Client
 
 gps_serial_port = 'COM5'
 baud_rate = 115200
+client = "Tiffany_"
+key = "aio_zRAk54lXbvNRFOUDCkzBiNoGy0er"
+mapfeed = "longitude-latitude"
+togglefeed = "on-slash-off"
+indicatorfeed = "outside"
+radiusfeed = "radius"
+circle_radius_meters = 1000
+toggle_chk = 0
 
 def read_gps_data():
 
@@ -19,24 +27,53 @@ def read_gps_data():
                     location = line.split()
                     latitude = float(location[1].rstrip(",N"))
                     longitude = float(location[2].rstrip("E"))
+
+                    
                     print("Current Position: ")
                     print("Latitude: ", latitude)
                     print("Longitude: ", longitude)
 
-                    if center_lat == 0 and center_long == 0:
-                        center_check = input("Are you at your center point?")
-                        if center_check == "yes":
-                            center_lat = latitude
-                            center_long = longitude
-                            print("Center point set")
-                            circle_radius_meters = int(input("Enter the radius of your circle area in meters: "))
+                    ddLat = dms_to_dd(latitude)
+                    ddLong = dms_to_dd(longitude)
+                    
+                    updateMap(client, key,  mapfeed, ddLat, ddLong)
 
-                    if is_within_circle(lat, long, center_lat, center_long, circle_radius_meters):
-                        print(f"The input coordinates are within the {circle_radius_meters} meter circle.")
-                    else:
+                    toggle_chk = receiveData(client, key, togglefeed)
+                                        
+                    if toggle_chk == "1" or (center_lat == 0 and center_long == 0):
+                        # print("ENTERED")
+                        center_lat = latitude
+                        center_long = longitude
+                        circle_radius_meters = int(receiveData(client, key, radiusfeed)) *100
+                        print("Center point set")
+                        print(circle_radius_meters)
+
+                    if is_within_circle(latitude, longitude, center_lat, center_long, circle_radius_meters):
+                        print(f"The input coordinates are within the {circle_radius_meters/100} meter circle.")
+                        sendData(client, key, indicatorfeed,"0")
+                    else: #if out of the circle
                         print(f"😡😡😡The input coordinates are outside the {circle_radius_meters} meter circle.")
+                        sendData(client, key, indicatorfeed,"1")
+                        #Send to adafruit here
+
+
+
         except KeyboardInterrupt:
             ser.close() # Close the serial connection when the script is interrupted
+
+def dms_to_dd(position):
+
+    position = str(position)
+
+    dotIdx = position.index(".")
+
+    d = position[:dotIdx-2]
+    m = position[dotIdx-2:dotIdx]
+    s = position[dotIdx+1:]
+    ms = s[:2] + "."  + position[-2:]
+
+    dd = float(d) + float(m)/60 + float(ms)/3600
+    return dd
 
 
     # Alternative way around 
@@ -86,10 +123,12 @@ def sendData(user, key, feed, data):
     client.send_data(dash.key, data)
     print("Message sent")
 
+#Toggle feed feature
 def receiveData(user, key, feed):
     client = Client(user, key)
     data = client.receive(feed)
     return data.value
+    # 0/1
 
 def updateMap(user, key, feed, lat, lon):
     client = Client(user, key)
