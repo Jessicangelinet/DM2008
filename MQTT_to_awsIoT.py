@@ -101,6 +101,8 @@ def haversine(lat1, lon1, lat2, lon2):
     """
     Calculate the great-circle distance (in meters) between two points
     on the Earth's surface using the Haversine formula.
+
+    reference: https://stackoverflow.com/questions/29545704/fast-haversine-approximation-python-pandas
     """
     R = 6371000  # Earth radius in meters
     dlat = math.radians(lat2 - lat1)
@@ -113,6 +115,12 @@ def haversine(lat1, lon1, lat2, lon2):
 def is_within_circle(lat_input, lon_input, lat_center, lon_center, radius_meters):
     """
     Check if the input latitude and longitude are within the specified circle.
+
+    the initial idea was to make a rectangle with the current point as one of the edges.
+    However, this would not work as the distance calculated using latitude as x-axis and longitude as y-axis will make it
+    pependicular to the latitude and longitude but might be diagonal in real life.
+
+    Hence, why circle is chosen to ensure the shape anywhere on the earth is a circle. -Jessica
     """
     distance_to_center = haversine(lat_input, lon_input, lat_center, lon_center)
     return distance_to_center <= radius_meters
