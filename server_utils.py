@@ -31,13 +31,10 @@ def initialise(port):
     server.listen()
     return server
 
-def receiveData(server):
+def receiveCoor(server):
     client, _ = server.accept()
     msg = client.recv(1024).decode()
     return msg
-
-def gpsData():
-    pass
 
 '''check within circle'''
 
