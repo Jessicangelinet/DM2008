@@ -11,9 +11,15 @@ while True:
         center_long = 0
         location = receiveCoor(server)
         #splice location
+        
+        lat_long = location.split()
+        lat = lat_long[0][1:len(lat_long[0]-1)]
+        long = lat_long[1][0: len(lat_long[1]-1)]
 
-        latitude = 0
-        longitude = 0
+        latitude = float(lat)
+        longitude = float(long)
+
+        print(latitude + longitude)
 
         updateMap(client, key,  mapfeed, latitude, longitude)
         toggle_chk = receiveData(client, key, togglefeed)
