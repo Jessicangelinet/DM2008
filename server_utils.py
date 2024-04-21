@@ -1,7 +1,20 @@
-import math
 import socket
+import math
+from Adafruit_IO import Client
+from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 import json
 from time import sleep
+
+gps_serial_port = 'COM5'
+baud_rate = 115200
+client = "Tiffany_"
+key = "aio_zRAk54lXbvNRFOUDCkzBiNoGy0er"
+mapfeed = "longitude-latitude"
+togglefeed = "on-slash-off"
+indicatorfeed = "outside"
+radiusfeed = "radius"
+circle_radius_meters = 1000
+toggle_chk = 0
 
 circle_radius_meters = 1000
 toggle_chk = 0
@@ -22,6 +35,9 @@ def receiveData(server):
     client, _ = server.accept()
     msg = client.recv(1024).decode()
     return msg
+
+def gpsData():
+    pass
 
 '''check within circle'''
 
@@ -53,18 +69,41 @@ def is_within_circle(lat_input, lon_input, lat_center, lon_center, radius_meters
     distance_to_center = haversine(lat_input, lon_input, lat_center, lon_center)
     return distance_to_center <= radius_meters
 
-# def notification(message):
-#     # Connect to AWS IoT Core
-#     myMQTTClient = AWSIoTMQTTClient(client_id)
-#     myMQTTClient.configureEndpoint(awsiot_endpoint, 8883)
-#     myMQTTClient.configureCredentials(root_ca_path, private_key_path, certificate_path)
+def sendData(user, key, feed, data):
+    client = Client(user, key)
+    dash = client.feeds(feed)
+    client.send_data(dash.key, data)
+    print("Message sent")
 
-#     myMQTTClient.connect()
+#Toggle feed feature
+def receiveData(user, key, feed):
+    client = Client(user, key)
+    data = client.receive(feed)
+    return data.value
+    # 0/1
 
-#     # Publish data to a topic
-#     topic = "general/inbound"
-#     data = {"message": message}
-#     myMQTTClient.publish(topic, json.dumps(data), 1)
+def updateMap(user, key, feed, lat, lon):
+    client = Client(user, key)
+    dash = client.feeds(feed)
+    data = {'lat': lat,
+            'lon': lon,
+            'ele': None,
+            'created_at': None}
+    client.send_data(dash.key, 0, data)
+    print("Map updated")
 
-#     # Disconnect from AWS IoT Core
-#     myMQTTClient.disconnect()
+def notification(message):
+    # Connect to AWS IoT Core
+    myMQTTClient = AWSIoTMQTTClient(client_id)
+    myMQTTClient.configureEndpoint(awsiot_endpoint, 8883)
+    myMQTTClient.configureCredentials(root_ca_path, private_key_path, certificate_path)
+
+    myMQTTClient.connect()
+
+    # Publish data to a topic
+    topic = "general/inbound"
+    data = {"message": message}
+    myMQTTClient.publish(topic, json.dumps(data), 1)
+
+    # Disconnect from AWS IoT Core
+    myMQTTClient.disconnect()
