@@ -4,6 +4,7 @@ import math
 from Adafruit_IO import Client
 from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 import json
+from time import sleep;
 
 gps_serial_port = 'COM5'
 baud_rate = 115200
@@ -59,10 +60,12 @@ def read_gps_data():
                     if is_within_circle(latitude, longitude, center_lat, center_long, circle_radius_meters):
                         sendData(client, key, indicatorfeed,"0")
                         notification(f"The input coordinates are within the {circle_radius_meters/100} meter circle.")
+                        sleep(100)
                     else: #if out of the circle
-                        sendData(client, key, indicatorfeed,"1")
+                        sendData(client, key, indicatorfeed,"1") #Send to adafruit here
                         notification(f"😡😡😡The input coordinates are outside the {circle_radius_meters} meter circle.")
-                        #Send to adafruit here
+                        sleep(100)
+                        
 
 
 
@@ -167,7 +170,7 @@ def notification(message):
 
     # Publish data to a topic
     topic = "general/inbound"
-    data = {message}
+    data = {"message": message}
     myMQTTClient.publish(topic, json.dumps(data), 1)
 
     # Disconnect from AWS IoT Core
