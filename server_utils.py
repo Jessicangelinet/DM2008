@@ -24,9 +24,8 @@ private_key_path = "67afd4ef929b22d569c9f23c49a9b28615b8282a29077187214e5fc75756
 certificate_path = "67afd4ef929b22d569c9f23c49a9b28615b8282a29077187214e5fc757569330-certificate.pem.crt"
 client_id = "Laptop"
 
-def initialise(port):
-    server = socket.socket()
-    host = socket.gethostname()
+def initialise(host, port):
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.bind((host,port))
     server.listen()
     return server
@@ -99,8 +98,37 @@ def notification(message):
 
     # Publish data to a topic
     topic = "general/inbound"
-    data = {"message": message}
+    data = {"alert": message}
     myMQTTClient.publish(topic, json.dumps(data), 1)
 
     # Disconnect from AWS IoT Core
     myMQTTClient.disconnect()
+
+def retrieval():
+    coor = []
+    # Connect to AWS IoT Core
+    myMQTTClient = AWSIoTMQTTClient(client_id)
+    myMQTTClient.configureEndpoint(awsiot_endpoint, 8883)
+    myMQTTClient.configureCredentials(root_ca_path, private_key_path, certificate_path)
+
+    def message_callback(client, userdata, message):
+        coor.append(message.payload.decode('utf-8'))
+
+    myMQTTClient.connect()
+
+    topic = "lat/long"
+    myMQTTClient.subscribe(topic, 1, message_callback)
+    # Keep the script running to receive messages
+    try:
+        while True:
+            if len(coor) > 0:
+                myMQTTClient.disconnect()
+                break
+            continue
+    except KeyboardInterrupt:
+        # Disconnect from AWS IoT Core on KeyboardInterrupt
+        myMQTTClient.disconnect()
+    
+    return coor.pop()
+
+print(retrieval())
