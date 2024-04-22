@@ -19,10 +19,10 @@ toggle_chk = 0
 circle_radius_meters = 1000
 toggle_chk = 0
 awsiot_endpoint = "a2cxs9th318s6p-ats.iot.ap-southeast-2.amazonaws.com" 
-root_ca_path = "AmazonRootCA1.pem"
-private_key_path = "67afd4ef929b22d569c9f23c49a9b28615b8282a29077187214e5fc757569330-private.pem.key"
-certificate_path = "67afd4ef929b22d569c9f23c49a9b28615b8282a29077187214e5fc757569330-certificate.pem.crt"
-client_id = "Laptop"
+root_ca_path = "subscribe_cred/AmazonRootCA1.pem"
+private_key_path = "subscribe_cred/6e546d9adf0cc8c45d62584a58590090cc8f9106523cfb28f5466ca07762095d-private.pem.key"
+certificate_path = "subscribe_cred/6e546d9adf0cc8c45d62584a58590090cc8f9106523cfb28f5466ca07762095d-certificate.pem.crt"
+client_id = "Server"
 
 def initialise(host, port):
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -103,7 +103,7 @@ def notification(message):
 
     # Disconnect from AWS IoT Core
     myMQTTClient.disconnect()
-    
+
 def retrieval():
     coor = []
     # Connect to AWS IoT Core
@@ -129,6 +129,6 @@ def retrieval():
         # Disconnect from AWS IoT Core on KeyboardInterrupt
         myMQTTClient.disconnect()
     
-    return coor.pop(0)
+    return coor.pop()
 
-# print(retrieval())
+print(retrieval())
