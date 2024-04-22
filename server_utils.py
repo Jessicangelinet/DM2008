@@ -70,7 +70,7 @@ def sendData(user, key, feed, data):
     client = Client(user, key)
     dash = client.feeds(feed)
     client.send_data(dash.key, data)
-    print("Message sent")
+    # print("Message sent")
 
 #Toggle feed feature
 def receiveData(user, key, feed):
@@ -132,4 +132,4 @@ def retrieval():
     
     return coor.pop()
 
-print(retrieval())
+# print(retrieval())

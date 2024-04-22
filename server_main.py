@@ -4,6 +4,7 @@ host = socket.gethostname()
 port = 8888
 
 server = initialise(port)
+is_outside = False
 
 while True:
     try:
@@ -31,12 +32,16 @@ while True:
 
         if is_within_circle(latitude, longitude, center_lat, center_long, circle_radius_meters):
             sendData(client, key, indicatorfeed,"0")
-            notification(f"The input coordinates are within the {circle_radius_meters/100} meter circle.")
-            sleep(100)
+            if is_outside == False:
+                notification(f"The input coordinates are within the {circle_radius_meters/100} meter circle.")
+                is_outside = True
+            # sleep(100)
         else: #if out of the circle
             sendData(client, key, indicatorfeed,"1") #Send to adafruit here
-            notification(f"😡😡😡The input coordinates are outside the {circle_radius_meters} meter circle.")
-            sleep(100)
+            if is_outside == True:
+                notification(f"😡😡😡The input coordinates are outside the {circle_radius_meters} meter circle.")
+                is_outside = False
+            # sleep(100)
 
     except KeyboardInterrupt:
         break
