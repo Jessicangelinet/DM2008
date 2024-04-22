@@ -24,8 +24,9 @@ private_key_path = "subscribe_cred/6e546d9adf0cc8c45d62584a58590090cc8f9106523cf
 certificate_path = "subscribe_cred/6e546d9adf0cc8c45d62584a58590090cc8f9106523cfb28f5466ca07762095d-certificate.pem.crt"
 client_id = "Server"
 
-def initialise(host, port):
+def initialise(port):
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    host = socket.gethostname()
     server.bind((host,port))
     server.listen()
     return server

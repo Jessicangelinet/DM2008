@@ -1,19 +1,20 @@
 from server_utils import *
 
-# host = socket.gethostname()
-# port = 8888
+host = socket.gethostname()
+port = 8888
 
-# server = initialise(port)
+server = initialise(port)
 
 while True:
     try:
         center_lat = 0
         center_long = 0
-        location = retrieval()
-
+        location = receiveCoor(server)
+        #splice location
+        
         lat_long = location.split()
-        lat = lat_long[1][:len(lat_long[1])-1]
-        long = lat_long[2]
+        lat = lat_long[0][1:len(lat_long[0])-1]
+        long = lat_long[1][0: len(lat_long[1])-1]
 
         latitude = float(lat)
         longitude = float(long)
