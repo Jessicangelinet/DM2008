@@ -103,7 +103,7 @@ def notification(message):
 
     # Disconnect from AWS IoT Core
     myMQTTClient.disconnect()
-
+    
 def retrieval():
     coor = []
     # Connect to AWS IoT Core
@@ -129,6 +129,6 @@ def retrieval():
         # Disconnect from AWS IoT Core on KeyboardInterrupt
         myMQTTClient.disconnect()
     
-    return coor.pop()
+    return coor.pop(0)
 
-print(retrieval())
+# print(retrieval())
