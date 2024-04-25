@@ -1,10 +1,10 @@
 from client_utils import *
 
-"""initialise host using global ip of the ec2 instance and port"""
-host = "52.90.148.84"
+#initialise host and port 
+host = "52.90.148.84" 
 port = 8888
 
-"""loop to send location continuously"""
+#send location continuously
 while True:
     #establish connection to server
     client = initialise(host,port)
