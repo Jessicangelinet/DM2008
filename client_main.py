@@ -1,10 +1,10 @@
 from client_utils import *
 
-#initialise host and port 
+"""initialise host and port """
 host = "52.90.148.84"
 port = 8888
 
-#send location continuously
+"""loop to send location continuously"""
 while True:
     #establish connection to server
     client = initialise(host,port)

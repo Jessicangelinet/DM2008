@@ -6,14 +6,14 @@ import json
 import datetime
 from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 
-#AWS  credentials
+"""AWS credentials"""
 awsiot_endpoint = "a2cxs9th318s6p-ats.iot.ap-southeast-2.amazonaws.com" 
 root_ca_path = "publish_cred/AmazonRootCA1.pem"
 private_key_path = "publish_cred/67afd4ef929b22d569c9f23c49a9b28615b8282a29077187214e5fc757569330-private.pem.key"
 certificate_path = "publish_cred/67afd4ef929b22d569c9f23c49a9b28615b8282a29077187214e5fc757569330-certificate.pem.crt"
 client_id = "Laptop"
 
-#function to get gps coordinates
+"""function to get gps coordinates"""
 def get_current_gps_coordinates():
     #this function is used to find the current information using IP Address
     g = geocoder.ip('me')
@@ -23,13 +23,13 @@ def get_current_gps_coordinates():
     else:
         return None
 
-#function to establish connection to server
+"""function to establish connection to server"""
 def initialise(host,port):
     client = socket.socket()
     client.connect((host,port))
     return client
 
-#function to send data to server 
+"""function to send data to server """
 def sendData(client, data):
     #send encoded data to server
     client.send(str(data).encode())
@@ -37,7 +37,7 @@ def sendData(client, data):
     #close connection to server
     client.close()
 
-#function to send data to aws iot topic
+"""function to send data to aws iot topic"""
 def sendCoor(data):
     #connect to AWS IoT Core
     myMQTTClient = AWSIoTMQTTClient(client_id)
