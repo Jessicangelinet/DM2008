@@ -5,6 +5,7 @@ from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 import json
 from time import sleep
 
+""" Adafruit credentials """
 gps_serial_port = 'COM5'
 baud_rate = 115200
 client = "Tiffany_"
@@ -16,6 +17,7 @@ radiusfeed = "radius"
 circle_radius_meters = 1000
 toggle_chk = 0
 
+""" AWS credentials """
 circle_radius_meters = 1000
 toggle_chk = 0
 awsiot_endpoint = "a2cxs9th318s6p-ats.iot.ap-southeast-2.amazonaws.com" 
@@ -24,20 +26,23 @@ private_key_path = "subscribe_cred/6e546d9adf0cc8c45d62584a58590090cc8f9106523cf
 certificate_path = "subscribe_cred/6e546d9adf0cc8c45d62584a58590090cc8f9106523cfb28f5466ca07762095d-certificate.pem.crt"
 client_id = "Server"
 
+"""function to establish connection to server"""
 def initialise(port):
+    # this function is used to establish connection to the server using socket library
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     host = socket.gethostname()
     server.bind((host,port))
     server.listen()
     return server
 
+"""function to receive data from client"""
 def receiveCoor(server):
+    # this function is used to receive data from the client and decode it
     client, _ = server.accept()
     msg = client.recv(1024).decode()
     return msg
 
 '''check within circle'''
-
 def haversine(lat1, lon1, lat2, lon2):
     """
     Calculate the great-circle distance (in meters) between two points
@@ -66,20 +71,25 @@ def is_within_circle(lat_input, lon_input, lat_center, lon_center, radius_meters
     distance_to_center = haversine(lat_input, lon_input, lat_center, lon_center)
     return distance_to_center <= radius_meters
 
+"""function to send data to server"""
 def sendData(user, key, feed, data):
+    # this function is used to send data to the Adafruit IO feed
     client = Client(user, key)
     dash = client.feeds(feed)
     client.send_data(dash.key, data)
     # print("Message sent")
 
-#Toggle feed feature
+"""Toggle feed feature"""
 def receiveData(user, key, feed):
+    # this function is used to receive data from the Adafruit IO feed
     client = Client(user, key)
     data = client.receive(feed)
+    # 0/1 for off/on are the possible values
     return data.value
-    # 0/1
 
+"""function to update map"""
 def updateMap(user, key, feed, lat, lon):
+    # this function is used to update the map on the Adafruit IO dashboard
     client = Client(user, key)
     dash = client.feeds(feed)
     data = {'lat': lat,
@@ -89,8 +99,9 @@ def updateMap(user, key, feed, lat, lon):
     client.send_data(dash.key, 0, data)
     print("Map updated")
 
+"""function to update toggle"""
 def notification(message):
-    # Connect to AWS IoT Core
+    # Connect to AWS IoT Core using the AWS credentials and endpoint through MQTT comunication
     myMQTTClient = AWSIoTMQTTClient(client_id)
     myMQTTClient.configureEndpoint(awsiot_endpoint, 8883)
     myMQTTClient.configureCredentials(root_ca_path, private_key_path, certificate_path)
@@ -105,14 +116,18 @@ def notification(message):
     # Disconnect from AWS IoT Core
     myMQTTClient.disconnect()
 
+"""function to retrieve data from AWS IoT Core"""
 def retrieval():
+    # this function is used to retrieve data from AWS IoT Core
     coor = []
     # Connect to AWS IoT Core
     myMQTTClient = AWSIoTMQTTClient(client_id)
     myMQTTClient.configureEndpoint(awsiot_endpoint, 8883)
     myMQTTClient.configureCredentials(root_ca_path, private_key_path, certificate_path)
 
+    # Define a callback function to receive messages
     def message_callback(client, userdata, message):
+        # Append the message payload to the list
         coor.append(message.payload.decode('utf-8'))
 
     myMQTTClient.connect()
@@ -122,6 +137,7 @@ def retrieval():
     # Keep the script running to receive messages
     try:
         while True:
+            # Wait for messages
             if len(coor) > 0:
                 myMQTTClient.disconnect()
                 break
@@ -131,5 +147,3 @@ def retrieval():
         myMQTTClient.disconnect()
     
     return coor.pop()
-
-# print(retrieval())
