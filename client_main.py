@@ -1,6 +1,6 @@
 from client_utils import *
 
-"""initialise host and port """
+"""initialise host using global ip of the ec2 instance and port"""
 host = "52.90.148.84"
 port = 8888
 
